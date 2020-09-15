@@ -1,0 +1,2 @@
+# Clock	Points
+1200	13210

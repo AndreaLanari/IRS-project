@@ -1,0 +1,150 @@
+<?xml version="1.0" ?>
+ 
+<argos-configuration>
+ 
+  <!-- ************************* -->
+  <!-- * General configuration * -->
+  <!-- ************************* -->
+  <framework>
+    <system threads="0" />
+    <experiment length="120"
+                ticks_per_second="10"
+     /> <!-- ticksecond = ogni quanto viene aggiornato il sistema (100 millisecondi) -->
+  </framework>
+
+  <!-- ****************** -->
+  <!-- * Loop functions * -->
+  <!-- ****************** -->
+  <loop_functions library="../build/libspc_loop_functions"
+                  label="spc_loop_functions" output="spc_suss_result.txt"/>
+ 
+  <!-- *************** -->
+  <!-- * Controllers * -->
+  <!-- *************** -->
+  <controllers> <!-- Possono essere usati più controllers per piu robot -->
+ 
+    <lua_controller id="lua">
+      <actuators> 
+        <differential_steering implementation="default" noise_level="0.0"/> 
+        <range_and_bearing implementation="default" />
+      </actuators>
+      <sensors> 
+        <differential_steering implementation="default" noise_level="0.0" /> 
+        <epuck_proximity implementation="default" show_rays="false" noise_level="0.0" />
+        <range_and_bearing implementation="medium" medium="rab" show_rays="true" noise_std_dev="0" range="0.7" />
+        <light implementation="default" show_rays="false" noise_level="0.0" />
+        <ground implementation="rot_z_only" />
+      </sensors>
+      <params script="SPC_suss.lua" />
+    </lua_controller>
+ 
+  </controllers>
+
+ <!-- <loop_functions library="../../../build/loop-functions/example/libexample_aggregation_loopfunc.so"
+   label="example_aggregation_loop_functions">
+   <params dist_radius="1.2" number_robots="5"/>
+  </loop_functions> -->
+
+  <!-- *********************** -->
+  <!-- * Arena configuration * -->
+  <!-- *********************** -->
+<!--  -->
+<!-- b1 is the north side of dodecagonal shape
+ lq = 2.56
+ ld = 0.67 -->
+  <arena size="2.56, 2.56, 1" center="0,0,0.5" positional_grid_size="8,8,1">
+  <floor id="f" source="image" path="../floor2.png" pixels_per_meter="100" />
+    <box id="b1" size="0.04, 0.75, 0.2" movable="false">
+      <body position="1.28, 0, 0"  orientation="0,0,0" />
+    </box>
+    <box id="b2" size="0.04, 0.75, 0.2" movable="false">
+      <body position="1.113,0.626,0"  orientation="-150,0,0" />
+    </box>
+    <box id="b3" size="0.75, 0.04, 0.2" movable="false">
+      <body position="0.626, 1.113, 0"  orientation="150,0,0" />
+    </box>
+    <box id="b4" size="0.75, 0.04, 0.2" movable="false">
+      <body position="0, 1.28, 0"  orientation="0,0,0" />
+    </box>
+    <box id="b5" size="0.75, 0.04, 0.2" movable="false">
+      <body position="-0.626, 1.113, 0"  orientation="-150,0,0" />
+    </box>
+    <box id="b6" size="0.04, 0.75, 0.2" movable="false">
+      <body position="-1.113, 0.626, 0"  orientation="150,0,0" />
+    </box>
+    <box id="b7" size="0.04, 0.75, 0.2" movable="false">
+      <body position="-1.28, 0, 0"  orientation="0,0,0" />
+    </box>
+    <box id="b8" size="0.04, 0.75, 0.2" movable="false">
+      <body position="-1.113,-0.626,0"  orientation="-150,0,0" />
+    </box>
+    <box id="b9" size="0.75, 0.04, 0.2" movable="false">
+      <body position="-0.626, -1.113, 0"  orientation="150,0,0" />
+    </box>
+    <box id="b10" size="0.75, 0.04, 0.2" movable="false">
+      <body position="0, -1.28, 0"  orientation="0,0,0" />
+    </box>
+    <box id="b11" size="0.75, 0.04, 0.2" movable="false">
+      <body position="0.626, -1.113, 0"  orientation="-150,0,0" />
+    </box>
+    <box id="b12" size="0.04, 0.75, 0.2" movable="false">
+      <body position="1.113, -0.626, 0"  orientation="150,0,0" />
+    </box>
+ 
+   <!-- <distribute>
+      <position method="uniform" min="-2,-2,0" max="2,2,0" />
+      <orientation method="uniform" min="0,0,0" max="360,0,0" />
+      <entity quantity="5" max_trials="100">
+        <box id="o" size="0.2, 0.2, 0.2" movable="false" />
+      </entity>
+    </distribute> 
+    
+    
+    <foot-bot id="fb">
+      <controller config="lua" />
+      <body position="0,0,0" orientation="0,0,0" />
+    </foot-bot>  -->
+
+
+    <!-- If you want to place the robot in a random position you may want to use this piece of code -->
+   <distribute>
+      <position method="uniform" min="-0.9,-0.9,0" max="0.9,0.9,0" />
+      <orientation method="uniform" min="0,0,0" max="360,0,0" />
+      <entity quantity="20" max_trials="100">
+        <e-puck id="epuck-">
+          <controller config="lua" />
+        </e-puck>
+      </entity>
+    </distribute>
+
+
+  </arena>
+ 
+  <!-- ******************* -->
+  <!-- * Physics engines * -->
+  <!-- ******************* -->
+  <physics_engines> <!--Da non cambiare -->
+    <dynamics2d id="dyn2d" />
+  </physics_engines>
+ 
+  <!-- ********* -->
+  <!-- * Media * -->
+  <!-- ********* -->
+  <media> <!-- Non ci interessa-->
+    <led id="leds" />
+    <range_and_bearing id="rab" />
+  </media>
+
+	
+  <!-- ****************** -->
+  <!-- * Visualization * -->
+  <!-- ****************** -->
+  <visualization>
+    <qt-opengl lua_editor="true"> <!-- Lua non è tipato, il debugging non è ottimale-->
+      <camera> <!-- Anche questa non ci interesas troppo -->
+        <placement idx="0" position="-2.0767,0.015,2.74921" look_at="-1.59254,0.015,1.87423" lens_focal_length="20" />
+      </camera>
+    </qt-opengl>
+  </visualization>
+ 
+</argos-configuration>
