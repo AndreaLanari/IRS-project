@@ -5,7 +5,7 @@ L_AXIS = robot.wheels.axis_length
 local vector = require "vector"
 n_steps = 0
 epuck_id= 0 -- durante l'init viene settato un id numerico per la comunicazione
-black = 1
+black = 1 -- se è 1 vuol dire che il robot è stato creato sulla patch nera, quindi deve uscire e rientrare
 color_friends = 0
 
 -- Main Section -- 
@@ -62,26 +62,20 @@ function step()
 	end	]]	
 end
 
---[[ This function is executed every time you press the 'reset'
-     button in the GUI. It is supposed to restore the state
-     of the controller to whatever it was right after init() was
-     called. The state of sensors and actuators is reset
-     automatically by ARGoS. ]]
-	 function reset()
-		n_steps = 0
-		epuck_id= 0
-		safe = 0 
-		burned = 0
-		blinded = 0
-	end
+-- funzione di reset
+function reset()
+	n_steps = 0
+	epuck_id= 0
+	black = 1
+end
 
-	--[[ This function is executed only once, when the robot is removed
-		 from the simulation ]]
-	function destroy()
-	   -- put your code here
-	end
+-- funzione di destroy
+function destroy()
+	-- nothing to do
+end
 
 --Sezione Comportamenti --
+-- Comportamento se si trova nella patch bianca
 function whitePatch()
 	v={left = 0 ,right = 0}
 	callFriends(2)
@@ -90,6 +84,7 @@ function whitePatch()
 	return v
 end
 
+-- Comportamento se si trova nella patch nera
 function blackPatch(friends)
 	v={left = 0, right = 0}
 	if black == 1 then 
@@ -99,6 +94,7 @@ function blackPatch(friends)
 	return v
 end
 
+-- Comportamento se sta andando verso la patch bianca
 function whiteHelp(i)
 	wheel_v = {left = 0, right = 0}
 	x_angle = robot.range_and_bearing[i].horizontal_bearing
@@ -108,6 +104,7 @@ function whiteHelp(i)
 	return wheel_v
 end
 
+-- COmportamento se sta andando verso la patch nera
 function blackHelp(i)
 	wheel_v = { left = 0, right = 0}
 	x_angle = robot.range_and_bearing[i].horizontal_bearing + 0.175
@@ -117,6 +114,7 @@ function blackHelp(i)
 	return wheel_v
 end
 
+-- Movimento casuale
 function randomWalk()
 	wheel_v={left = 0, right = 0}
 	wheel_v.left = robot.random.uniform(0,MAX_VELOCITY)
@@ -144,24 +142,6 @@ function groundCheck()
 	return nil
 end
 
--- Conta i robottini presenti nella stessa patch
---[[ function countFriends(color)
-	friends= 1
-	for i=1,#robot.range_and_bearing do
-		if robot.range_and_bearing[i].data[color] > color_friends then
-			color_friends = robot.range_and_bearing[i].data[color]
-		end
-	end
-	for i=1,#robot.range_and_bearing do
-		if robot.range_and_bearing[i].data[color] >= 1 then
-			friends = friends + 1
-		end
-	end
-	if friends > color_friends then
-		color_friends = friends
-	end
-end
---]]
 -- Cerca l'amico più vicino a patto che il gruppo di amici nella patch non sia già completo
 function searchTheCloseFriend()
 	tmp = 80
@@ -187,21 +167,6 @@ function speedFromForce(f)
     wheel_v.right = pol_v.length + L_AXIS*pol_v.angle/2
 
     return wheel_v
-end
-
--- Funzione ricorsiva che permette di stampare le tabelle
-function tprint (tbl, indent)
-	if not indent then indent = 0 end
-	for k, v in pairs(tbl) do
-	  formatting = string.rep("  ", indent) .. k .. ": "
-	  if type(v) == "table" then
-		print(formatting)
-		tprint(v, indent+1)
-	  else
-		print(formatting)
-		print(v)
-	  end
-	end
 end
 
 -- Funzione che valuta se ci sono oggetti vicino al robot
@@ -230,7 +195,7 @@ function velocity_check(v)
 	return v
 end
 
--- Comportamento se ha un oggetto vicino //to improve
+-- Comportamento se ha un oggetto vicino
 function collisionAvoid()
 	avoidanceForce = { x = 0, y = 0}
     for i = 1,#robot.proximity do

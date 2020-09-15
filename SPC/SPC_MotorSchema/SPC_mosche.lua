@@ -153,21 +153,6 @@ function speedFromForce(f)
     return wheel_v
 end
 
--- Funzione ricorsiva che permette di stampare le tabelle
-function tprint (tbl, indent)
-	if not indent then indent = 0 end
-	for k, v in pairs(tbl) do
-	  formatting = string.rep("  ", indent) .. k .. ": "
-	  if type(v) == "table" then
-		print(formatting)
-		tprint(v, indent+1)
-	  else
-		print(formatting)
-		print(v)
-	  end
-	end
-end
-
 -- Funzione che gestisce la velocità massima delle ruote
 function velocity_check(v)
 	if (math.abs(v.right) > MAX_VELOCITY or math.abs(v.left) > MAX_VELOCITY)  then

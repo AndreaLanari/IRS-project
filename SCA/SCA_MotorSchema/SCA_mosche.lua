@@ -4,7 +4,7 @@ MAX_VELOCITY = 16
 L_AXIS = robot.wheels.axis_length
 local vector = require "vector"
 n_steps = 0
-burned = 1 -- 0 se non ha raggiunto il muro luce, 1 se sta andando verso il riparo
+burned = 1 -- -1 se non ha raggiunto il muro luce, 1 se sta andando verso il riparo
 
 -- Main Section -- 
 
@@ -177,21 +177,6 @@ function speedFromForce(f)
     wheel_v.right = pol_v.length + L_AXIS*pol_v.angle/2
 
     return wheel_v
-end
-
--- Funzione ricorsiva che permette di stampare le tabelle
-function tprint (tbl, indent)
-	if not indent then indent = 0 end
-	for k, v in pairs(tbl) do
-	  formatting = string.rep("  ", indent) .. k .. ": "
-	  if type(v) == "table" then
-		print(formatting)
-		tprint(v, indent+1)
-	  else
-		print(formatting)
-		print(v)
-	  end
-	end
 end
 
 -- Funzione che salvaguardia la velocità massima del robot

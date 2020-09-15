@@ -5,7 +5,7 @@ L_AXIS = robot.wheels.axis_length
 local vector = require "vector"
 n_steps = 0
 safe = 0 -- 0 se non è dentro il riparo, 1 se è al riparo
-burned = 0 -- 0 se non ha raggiunto il muro luce, 1 se sta andando verso il riparo
+burned = 0 -- 0 se non è abbastanza vicino alla luce, 1 se lo è
 
 -- Main Section -- 
 
@@ -62,7 +62,7 @@ function step()
 	end
 end
 
--- Funzione che si attiva con il bottone reset
+-- Funzione reset
 function reset()
 	n_steps = 0
 	safe = 0 
@@ -75,6 +75,7 @@ function destroy()
 end
 
 --Sezione Comportamenti -- 
+
 -- Comportamento: Parcheggiami; se sono salvo mi posizione in un punto della shelter dove non creo disagio
 function parkMe()
 	force = { x = 0, y = 0}
@@ -93,7 +94,7 @@ function parkMe()
 	return speedFromForce(force)
 end
 
--- Comportamento: Controlla se è al sicuro, se lo è setta il suo stato in safe = 1, e inizia a chiamare i robot a lui vicini
+-- Comportamento: Controlla se è al sicuro, se lo è setta il suo stato in safe = 1
 function amISafe()
 	if robot.ground[1] == 1 then 
 		log("Sono Salvo")
@@ -128,13 +129,14 @@ function findingShelterBh(i)
 	return v
 end
 
--- Comportamento: Dopo essersi abbastanza avvicinato alla luce si muove allontanato dalla luce, trovando in teoria il riparo
+-- Comportamento: antifototassi che si attiva nel momento in cui è arrivato abbastanza vicino alla luce
 function burnedBh()
 	ph_v = phototaxis(-1)
 	force = ph_v[1]
 	return speedFromForce(force)
 end
 
+-- Comportamento: phototassi
 function lightFinderBh()
 	ph_v = phototaxis(1)
 	force = ph_v[1]
@@ -154,7 +156,7 @@ function randomWalkBh()
 	return move_vector
 end
 
--- Comportamento se ha un oggetto vicino
+-- Comportamento: avoid collision
 function collisionAvoidBh()
 	avoidanceForce = { x = 0, y = 0}
     for i = 1,#robot.proximity do
@@ -197,21 +199,6 @@ function speedFromForce(f)
     wheel_v.right = pol_v.length + L_AXIS*pol_v.angle/2
 
     return wheel_v
-end
-
--- Funzione ricorsiva che permette di stampare le tabelle
-function tprint (tbl, indent)
-	if not indent then indent = 0 end
-	for k, v in pairs(tbl) do
-	  formatting = string.rep("  ", indent) .. k .. ": "
-	  if type(v) == "table" then
-		print(formatting)
-		tprint(v, indent+1)
-	  else
-		print(formatting)
-		print(v)
-	  end
-	end
 end
 
 -- Funzione che valuta se ci sono oggetti vicino al robot
